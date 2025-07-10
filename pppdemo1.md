@@ -9,7 +9,8 @@ This is the same example that is given in the help of the `pppcombine` function.
 
 * [Read NRCAN CSRS-PPP solution files and extract the relevant information](#read-nrcan-csrs-ppp-summary-files-and-extract-the-relevant-information)
 * [Combine single day solutions into one multi-day solution with statistical testing](#combine-single-day-solutions-into-one-multi-day-solution-with-statistical-testing)
-* [Repeat the combination, but without the last day (which has a high OMT value)](#repeat-the-combination-but-without-the-last-day-which-has-a-high-omt-value)
+* [Using subsets of data](#using-subsets-of-data)
+* [Appendix: Theory and equations](#appendix-theory-and-equations)
 
 ## Read NRCan CSRS-PPP summary files and extract the relevant information</a>
 
@@ -30,7 +31,7 @@ prtNRCAN(pppstruct)
 
 The output is
 
-```
+```text
 name                     first                 last  receiver type         antenna type           anthgt    %epo   %used    %obs    %iar  nsat  #rej  prod
 ---------  -------------------  -------------------  --------------------  --------------------  -------  ------  ------  ------  ------  ----  ----  ----
 30321730   2019-06-22 13:19:00  2019-06-22 23:59:45  TRIMBLE 5700          TRM57971.00     NONE   1.1810  100.0%  100.0%  100.0%    0.0%  10.5     0   igs  
@@ -54,7 +55,7 @@ prtcombine(pppcomb)
 
 The output is
 
-```
+```text
 Message PPPCOMBINE: Station names in name field do not match, get name from first 4 characters of filename instead.
 
 Station name:           blas
@@ -121,9 +122,74 @@ The result of the combination is stored in the Matlab structure `pppcomb`.
 
 The expected values for the *overall model test (omt)* and *w-test* values is one; *omt* and *w-test* values much larger than one are an indication of problems with the data. As a rule of thumb, when the absolute w-test value is larger than `3.29` the corresponding observation is generally considered to be an outlier.
 The critical values the *omt* a slighty smaller because of the higher redundancy.
-However, because of the small amount of data, and the inaccuracy of the stochastic models, the *omt* and *w-test* values should be considered only as an indication to support a human interpretation of the result. 
+However, because of the small amount of data, and the inaccuracy of the stochastic models, the *omt* and *w-test* values should be considered only as an indication to support a human interpretation of the result.
 
-To better understand the outcome of the statistical testing a brief explanation ot the *Delft school* statistical testing method is given.
+To better understand the outcome of the statistical testing a brief explanation of the *Delft school* method of statistical testing is given in the [Appendix](#appendix-theory-and-equations).
+
+## Using subsets of data
+
+A particularly useful feature of `pppcombine` is that it allows to specify a subset of the data in the second function argument.
+This adds extra flexibility and makes the function not relialant on how the data is stored and loaded.
+
+It is also an extremely useful feature to repeat the solution with a specific day or to remove outliers in the data (that may have been flagged by the statistical testing in a previous iteration).
+
+As an example, we repeat the combination without the last day. In the previous run we had a somewhat higher OMT value for the last day, *2.8* compared to *0.3-0.7* for the other days, and we might be interested in the result of the combination without that particular day.
+
+The code to accomplish this is
+
+```matlab
+pppcomb=pppcombine(pppstruct,[ 1 2 3 ]);
+prtcombine(pppcomb)
+```
+
+The outcome is
+
+```text
+Message PPPCOMBINE: Station names in name field do not match, get name from first 4 charaters of filename instead.
+
+Station name:           blas
+Observation period:     2019-06-22 13:19:00 - 2019-06-24 23:59:45
+Observation interval:   15.0 [s]
+Antenna height:         1.1810 [m]
+
+Coordinates (IGS14):
+  Mean epoch:           23-Jun-2019 18:39:22   (2019.475)
+  Cartesian \[m\]:        2493197.9648  -756391.0761  5802569.2728
+  Geodetic \[deg/m\]:     65.9629321952  -16.8768464534   332.9878
+  Geodetic \[dms/m\]:     65 57 46.5559  -16 52 36.6472   332.9878
+
+Coordinate uncertainties:
+                         st.dev. in [mm]             Correlations
+  method
+                      North    East      Up        N-E    N-U    E-U
+                     ------  ------  ------     ------ ------ ------
+  cov-matrix           0.99    1.39    2.87      -0.02  -0.04   0.03
+  emperical (rms)      0.44    0.96    0.97
+  emperical (wrms)     0.38    0.58    0.84
+
+                          X       Y       Z        X-Y    X-Z    Y-Z
+                     ------  ------  ------     ------ ------ ------
+  cov-matrix           1.51    1.39    2.64      -0.01   0.67  -0.20
+  emperical (rms)      0.62    1.01    0.80
+  emperical (wrms)     0.56    0.69    0.65
+
+Overall Model Test (omt):  0.219   (2D: 0.263, 1D: 0.125)
+
+obsfile                                     res-N   res-E   res-U    wtst-N wtst-E wtst-U    omt-2D omt-1D  omt-3D  
+--------------------------------------    ------- ------- -------    ------ ------ ------    ------ ------  ------  
+blas1730.19o                                 -0.5     2.3    -1.1     -0.23   0.69  -0.18     0.267  0.032   0.196 
+blas1740.19o                                 -0.6    -1.0     1.8     -0.48  -0.61   0.52     0.303  0.272   0.291 
+blas1750.19o                                  0.8     0.2    -1.1      0.64   0.09  -0.33     0.217  0.110   0.178 
+                                          ------- ------- -------    ------ ------ ------    ------ ------  ------  
+rms, omt                                     0.76    1.66    1.68     0.463  0.559  0.353     0.263  0.125   0.219 
+wrms                                         0.66    1.01    1.45
+```
+
+There are some minor differences in the coordinates and of course the errors became much smaller, however, it is arguable this is because of removing an "outlier" or that this is just because of having less data. Three days of data is at the low side, as two days of data is the absolute lower limit for statistical testing and computation of emperical standard deviation.
+
+This idea is further developed in the `pppdemo2` and `pppdemo2xl` scripts which process all stations of a GNSS campaign, add automatic removal of days with large omt values (possible outliers) and graphics.
+
+## Appendix: Theory and equations
 
 The functional model is $E\{\bf{y}\} = \bf{A}\bf{x}$ with $\bf{y}$ the $m \times 1$ vector of observations, $\bf{x}$ the $n \times 1$ vector of unknown parameters and $\bf{A}$ the so-called $m \times n$ design matrix. For the combination we have:
 
@@ -155,53 +221,4 @@ When all observations are used the redundancy $r_s$ is equal to $m-n$.
 Using different subsets $S$ of observations allows for testing different components of the solution.
 Possible subsets are all observations for a single day, all observations for a single coordinate component (North, East, Up/Vertical, Horizontal), or a combination of the two.
 
-## Repeat the combination, but without the last day (which has a high OMT value)
-
-```
-fprintf('Repeat the combination without the last day\\n\\n');
-
-pppcomb=pppcombine(pppstruct,\[ 1 2 3  \]);
-prtcombine(pppcomb)
-```
-```
-Repeat the combination without the last day
-
-Message PPPCOMBINE: Station names in name field do not match, get name from first 4 charaters of filename instead.
-Station name:           blas
-Observation period:     2019-06-22 13:19:00 - 2019-06-24 23:59:45
-Observation interval:   15.0 \[s\]
-Antenna height:         1.1810 \[m\]
-
-Coordinates (IGS14):
-  Mean epoch:           23-Jun-2019 18:39:22   (2019.475)
-  Cartesian \[m\]:        2493197.9648  -756391.0761  5802569.2728
-  Geodetic \[deg/m\]:     65.9629321952  -16.8768464534   332.9878
-  Geodetic \[dms/m\]:     65 57 46.5559  -16 52 36.6472   332.9878
-
-Coordinate uncertainties:
-                         st.dev. in \[mm\]             Correlations
-  method
-                      North    East      Up        N-E    N-U    E-U
-                     ------  ------  ------     ------ ------ ------
-  cov-matrix           0.99    1.39    2.87      -0.02  -0.04   0.03
-  emperical (rms)      0.44    0.96    0.97
-  emperical (wrms)     0.38    0.58    0.84
-
-                          X       Y       Z        X-Y    X-Z    Y-Z
-                     ------  ------  ------     ------ ------ ------
-  cov-matrix           1.51    1.39    2.64      -0.01   0.67  -0.20
-  emperical (rms)      0.62    1.01    0.80
-  emperical (wrms)     0.56    0.69    0.65
-
-Overall Model Test (omt):  0.219   (2D: 0.263, 1D: 0.125)
-
-obsfile                                     res-N   res-E   res-U    wtst-N wtst-E wtst-U    omt-2D omt-1D  omt-3D  
---------------------------------------    ------- ------- -------    ------ ------ ------    ------ ------  ------  
-blas1730.19o                                 -0.5     2.3    -1.1     -0.23   0.69  -0.18     0.267  0.032   0.196 
-blas1740.19o                                 -0.6    -1.0     1.8     -0.48  -0.61   0.52     0.303  0.272   0.291 
-blas1750.19o                                  0.8     0.2    -1.1      0.64   0.09  -0.33     0.217  0.110   0.178 
-                                          ------- ------- -------    ------ ------ ------    ------ ------  ------  
-rms, omt                                     0.76    1.66    1.68     0.463  0.559  0.353     0.263  0.125   0.219 
-wrms                                         0.66    1.01    1.45
-```
-  
+The emperical standard deviation (*rms*) is computed by $\sqrt{ \sum_{i=1}^M e_{k_i}^2 / (M-1) }$, with $e_{k_i}$ the $i$'th residual for component $k$ (North, East or Up). The weighted rms (*wrms*) is computed using the equation $\sqrt{ ( \sum_{i=1}^M e_{k_i}^2/\sigma_{e_{k_i}}^2 ) / ( \sum_{i=1}^M 1 /\sigma_{e_{k_i}}^2 )}$
