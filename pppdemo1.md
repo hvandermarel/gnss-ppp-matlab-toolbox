@@ -132,16 +132,16 @@ $\bf{y}^\intercal = [ \bf{y}_1^\intercal \ \bf{y}_2^\intercal \ldots \ \bf{y}_M^
 * $\bf{x}$ the $n \times 1$ vector with unknown parameters with the three coordinates of the combined solution ($n=3$)
 * $\bf{A}$ the $m \times n$ design matrix, composed of $M$ $3 \times 3$ identity matrices, with  $\bf{A}  = [ \bf{I}_3 \ \bf{I}_3 \ \ldots \ \bf{I}_3 ]^\intercal$
 
-The stochastic model is defined by the $m \times m$ co-variance matrix $\bf{Q}_y$ of the observations.
-This matrix is a block diagonal matrix $\bf{Q}_y = \text{diag}( \bf{Q}_{y_1} ,\ \bf{Q}_{y_2} \ldots \ \bf{Q}_{y_M} )$ with $\bf{Q}_{y_i}$ for $i = 1, 2, \ldots M$  the $3 \times 3$ co-variance matrix of the daily coordinates from the CSRS-PPP summary file.
+The stochastic model is defined by the $m \times m$ co-variance matrix $\bf{Q_y}$ of the observations.
+This matrix is a block diagonal matrix $\bf{Q_y} = \text{diag}( \bf{Q_{y_1}} ,\ \bf{Q_{y_2}} \ldots \ \bf{Q_{y_M}} )$ with $\bf{Q_{y_i}}$ for $i = 1, 2, \ldots M$  the $3 \times 3$ co-variance matrix of the daily coordinates from the CSRS-PPP summary file.
 
 The least-squares estimate $\hat{\bf{x}}$ giving the combined coordinate solutions is
-$\hat{\bf{x}}= ( \bf{A}^\intercal \bf{Q}_y^{-1} \bf{A} )^{-1} \bf{A}^\intercal \bf{Q}_y^{-1} \bf{y}$, with
-$\bf{Q}_{\hat{x}} = ( \bf{A}^\intercal \bf{Q}_y^{-1} \bf{A} )^{-1}$ the $3 \times 3$ co-variance matrix for the estimated parameters.
+$\hat{\bf{x}}= ( \bf{A}^\intercal \bf{Q_y}^{-1} \bf{A} )^{-1} \bf{A}^\intercal \bf{Q_y}^{-1} \bf{y}$, with
+$\bf{Q_{\hat{x}}} = ( \bf{A}^\intercal \bf{Q_y}^{-1} \bf{A} )^{-1}$ the $3 \times 3$ co-variance matrix for the estimated parameters.
 
-The $m \times 1$ vector with least-squares residuals is equal to $\hat{\bf{e}} = \bf{y} - \bf{A}\hat{\bf{x}}$. The co-variance matrix of the least-squares residuals is computed as $\bf{Q}_{\hat{e}} = \bf{Q}_y - \bf{A} \bf{Q}_{\hat{x}} \bf{A}^\intercal$.
+The $m \times 1$ vector with least-squares residuals is equal to $\hat{\bf{e}} = \bf{y} - \bf{A}\hat{\bf{x}}$. The co-variance matrix of the least-squares residuals is computed as $\bf{Q_{\hat{e}}} = \bf{Q_y} - \bf{A} \bf{Q_{\hat{x}}} \bf{A}^\intercal$.
 
-The w-test value for the $i$'th observation is equal to $w_i = e_i / \sigma_{e_i}$, with $e_i$ the $i$'th element from $\hat{\bf{e}}$ and $\sigma_{e_i} = \sqrt{{\bf{Q}_{\hat{e}}}_{ii}}$.
+The w-test value for the $i$'th observation is equal to $w_i = e_i / \sigma_{e_i}$, with $e_i$ the $i$'th element from $\hat{\bf{e}}$ and $\sigma_{e_i} = \sqrt{\bf{Q_{\hat{e}}}}_{ii}$ .
 
 The overall model test is
 
