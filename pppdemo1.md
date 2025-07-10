@@ -221,4 +221,11 @@ When all observations are used the redundancy $r_s$ is equal to $m-n$.
 Using different subsets $S$ of observations allows for testing different components of the solution.
 Possible subsets are all observations for a single day, all observations for a single coordinate component (North, East, Up/Vertical, Horizontal), or a combination of the two.
 
-The emperical standard deviation (*rms*) is computed by $\sqrt{ \sum_{i=1}^M e_{k_i}^2 / (M-1) }$, with $e_{k_i}$ the $i$'th residual for component $k$ (North, East or Up). The weighted rms (*wrms*) is computed using the equation $\sqrt{ ( \sum_{i=1}^M e_{k_i}^2/\sigma_{e_{k_i}}^2 ) / ( \sum_{i=1}^M 1 /\sigma_{e_{k_i}}^2 )}$
+The emperical standard deviation (*rms*) and weighted rms (*wrms*) are computed using the equations
+
+```math
+\text{rms}_k = \sqrt{ ( \sum_{i=1}^M e_{k_i}^2 ) / (M-1) } \ \ \ \ \ \ \ \ \ \ \ \ 
+\text{wrms}_k  = \sqrt{ ( \sum_{i=1}^M e_{k_i}^2/\sigma_{e_{k_i}}^2 ) / ( \sum_{i=1}^M 1 /\sigma_{e_{k_i}}^2 )}
+```
+
+with $e_{k_i}$ the $i$'th residual for component $k$ (North, East or Up).
