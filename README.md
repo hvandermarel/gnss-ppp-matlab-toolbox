@@ -1,6 +1,6 @@
 # GNSS Precise Point Positioning (PPP) Matlab Toolbox
 
-**Version 1.2 (31 May 2024).**
+Version 1.3b (11 July 2025).**
 
 ## Synopsis
 
