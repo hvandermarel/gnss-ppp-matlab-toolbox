@@ -6,7 +6,6 @@
 
 Functions and example script to read data from NRCan CSRS-PPP output files and combine the single day
 solutions into a single multi-day solution with statistical testing.
-
 Applications range from computing multiday station coordinates, with statistical testing, up to quality
 control for a multi-week GNSS campaign with automatic outlier detection and powerful graphics.
 
