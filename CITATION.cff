@@ -1,0 +1,11 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+authors:
+- family-names: "van der Marel"
+  given-names: "Hans"
+  orcid: "https://orcid.org/0000-0002-0678-8068"
+title: "GNSS Precise Point Positioning (PPP) Matlab Toolbox."
+version: 1.3
+doi: 10.4121/1a586cea-b3ce-4981-8db8-464a5cd997be
+date-released: 2025-07-15
+url: "https://github.com/hvandermarel/gnss-ppp-matlab-toolbox"
