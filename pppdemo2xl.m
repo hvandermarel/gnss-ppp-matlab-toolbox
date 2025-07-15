@@ -19,9 +19,10 @@
 %             - formatting improvements to the ouput
 %             8 July 2025 by Hans van der Marel
 %             - removed dependency on obsfile name for determining doy in
-%               OMT plots (to make the sw robust against weird obsfilenames)
-
-campaign='2019B';
+%               OMT plots (to make the sw robust against non-standard obsfilenames)
+%            15 July 2025 by Hans van der Marel
+%             - cleanup of code for setting campaign directory
+%             - fixed bug in doy computation for removed obsfiles
 
 %% Add toolbox directories to the path
 
@@ -33,16 +34,14 @@ addpath('D:\Surfdrive\Matlab\toolbox\nrcan');
 % For each year, the solutions for every station is stored in a unique 
 % subdirectory for each station.
 
+campaign='2019';
+
 fprintf('Get directory names with NRCAN summary files\n\n');
 
-% Select these lines for the 2018 PPP files
-%dirroot='d:\Surfdrive\Iceland\DATAPACK\2_GPS\00_DATA\2018\03_PPP';
-dirroot='d:\Iceland\DATAPACK\2_GPS\00_DATA\2019B\03_PPP';
+% Modify/select code to set the campaign directory
+% dirroot=fullfile('d:\Iceland\NRCAN\',campaign); filepattern='*.sum';
+dirroot=fullfile('d:\Iceland\DATAPACK\2_GPS\00_DATA',campaign,'03_PPP');
 filepattern='*.zip';
-%legacyformat=true;
-% Select these lines for the 2019 PPP files
-%dirroot=fullfile('d:\Iceland\NRCAN\',campaign);
-%filepattern='*.sum';
 legacyformat=false;
 % End of select
 
@@ -50,16 +49,14 @@ dirnames=dir(dirroot);
 dirnames=dirnames([dirnames.isdir]); 
 dirnames=dirnames(~cellfun(@(x) strncmp(x,{'.'},1), {dirnames.name}));
 
-% select subset which has been processed by Narayanee (uncomment next
-% section)
-
+% select subset (uncomment next section)
+%
 % selectstations={ ...
 %     'AUSB' 'BF13' 'FM15' 'HRHA' 'KB11' 'KMDC' 'KROV' 'L595' 'L597' 'L598' ...
 %     'L599' 'L603' 'L604' 'L671' 'L684' 'L685' 'LV20' 'MYVN' ...
 %     'NAMA' 'RAHO' 'RAND' 'THHY' 'TR32' 'TR34'  'VITI' };
 % %'L697' 'L699' 'NOME' 'SAMD' 'VIDA'
 % dirnames( ~ismember({dirnames.name},selectstations) )=[];
-
 
 %% Combine single-day solutions into a multi-day solution for each station 
 %
@@ -117,7 +114,7 @@ for k=1:numel(dirnames)
    filespec=fullfile(dirroot,dirnames(k).name,filepattern);
    pppstruct = xtrNRCAN(filespec,'legacy',legacyformat);
      
-   % Check if the station names in pppstruct are correct 
+   % Check if the station names in pppstruct match the directory name
 
    name=unique(pppstruct.name);
    if numel(name) ~=1 || ~strcmpi(dirnames(k).name,char(name)) 
@@ -163,11 +160,12 @@ for k=1:numel(dirnames)
         while ( pppcomb.omt > maxomt_for_reprocessing_multi_day || max(pppcomb.omtfile) > maxomt_for_reprocessing_single_day ) && numel(pppcomb.omtfile) > 2
  
           [~,i]=max(pppcomb.omtfile);
-          fprintf('*** Removing solution file %s from combination ***\n\n',pppcomb.obsfile{i})
+          doyremoved=doy(segment(select(i)));
+          fprintf('*** Removing solution file %s from combination (doy=%d) ***\n\n',pppcomb.obsfile{i},doyremoved)
           select(i)=[];
 
           %pppremoved_new=[ pppremoved_new ; pppcomb.name pppcomb.obsfile(i) {pppcomb.omtfile(i)}  kk+1 ];
-          pppremoved_new=[ pppremoved_new ; pppcomb.name pppcomb.obsfile(i) {pppcomb.omtfile(i)}  kk+1 doy(segment(i))];
+          pppremoved_new=[ pppremoved_new ; pppcomb.name pppcomb.obsfile(i) {pppcomb.omtfile(i)}  kk+1 doyremoved];
        
           pppcomb=pppcombine(pppstruct,segment(select));
 
@@ -203,7 +201,6 @@ for k=1:numel(dirnames)
 
    end
      
-   
 end
 
 %% Summarize the removed data files
