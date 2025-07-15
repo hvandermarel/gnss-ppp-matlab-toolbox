@@ -1,0 +1,23 @@
+# Windows default autosave extension
+*.asv
+
+# OSX / *nix default autosave extension
+*.m~
+*.bak
+
+# Compiled MEX binaries (all platforms)
+*.mex*
+
+# Packaged app and toolbox files
+*.mlappinstall
+*.mltbx
+
+# Generated helpsearch/html folders
+helpsearch*/
+html/
+
+# Legacy code
+legacy/
+
+
+
